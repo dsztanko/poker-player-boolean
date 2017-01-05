@@ -16,18 +16,8 @@ public class Player {
                 case 0: {
                     return preflop(jsonObject);
                 }
-            }
-            if (jsonObject.getAsJsonArray("community_cards").size() == 0) {
-                for (JsonElement team: jsonObject.getAsJsonArray("players")){
-                    JsonObject actualTeam = team.getAsJsonObject();
-                    if (actualTeam.get("name").getAsString().equals("BooLean")) {
-                        JsonArray holeCards = actualTeam.getAsJsonArray("hole_cards");
-                        if (holeCards.get(0).getAsJsonObject().get("rank").getAsString()
-                                .equals(holeCards.get(1).getAsJsonObject().get("rank").getAsString())) {
-                            return actualTeam.get("stack").getAsInt();
-                        }
-                    }
-                }
+                case 3:
+                    return afterFlop(jsonObject);
             }
             return 0;
         } catch (Exception e) {
@@ -35,49 +25,56 @@ public class Player {
         }
     }
 
-    private static Integer preflop(JsonObject reqest) {
+    private static int afterFlop(JsonObject jsonObject) {
 
         return 0;
     }
 
-    private static Integer highPairPreflop(JsonObject request) {
-        JsonObject jsonObject = request.getAsJsonObject();
+    private static boolean checkMiddlePair(JsonObject jsonObject) {
 
+        return false;
+    }
 
+    private static boolean checkPairInHand(JsonArray holeCards) {
+        if (holeCards.get(0).getAsJsonObject().get("rank").getAsString()
+                .equals(holeCards.get(1).getAsJsonObject().get("rank").getAsString())) {
+            return true;
+        }
+        return false;
+    }
+
+    private static Integer preflop(JsonObject jsonObject) {
         for (JsonElement team : jsonObject.getAsJsonArray("players")) {
             JsonObject actualTeam = team.getAsJsonObject();
             if (actualTeam.get("name").getAsString().equals("BooLean")) {
                 JsonArray holeCards = actualTeam.getAsJsonArray("hole_cards");
+                if (checkPairInHand(holeCards)) {
 
-                String card1 = holeCards.get(0).getAsJsonObject().get("rank").getAsString();
-                String card2 = holeCards.get(1).getAsJsonObject().get("rank").getAsString();
-
-
-                switch (card1) {
-                    case "A":
-                        if (card1.equals(card2)) {
-                            return actualTeam.get("stack").getAsInt();
-                        }
-                        return 0;
-
-                    case "K":
-                        if (card1.equals(card2)) {
-                            return actualTeam.get("stack").getAsInt();
-                        }
-                        return 0;
-
-                    case "Q":
-                        if (card1.equals(card2)) {
-                            return actualTeam.get("stack").getAsInt();
-                        }
-                        return 0;
+                    highPairPreflop(holeCards, actualTeam);
                 }
             }
-
         }
         return 0;
     }
 
     public static void showdown(JsonElement game) {
+
+    }
+
+    private static Integer highPairPreflop(JsonArray holeCards, JsonObject actualTeam) {
+
+        String card1 = holeCards.get(0).getAsJsonObject().get("rank").getAsString();
+
+        switch (card1) {
+            case "A":
+                return actualTeam.get("stack").getAsInt();
+            case "K":
+                return actualTeam.get("stack").getAsInt();
+            case "Q":
+                return actualTeam.get("stack").getAsInt();
+            case "J":
+                return actualTeam.get("stack").getAsInt();
+        }
+        return 0;
     }
 }
