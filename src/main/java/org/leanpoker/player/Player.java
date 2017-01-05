@@ -10,6 +10,8 @@ public class Player {
 
     static final String VERSION = "Sky is the limit";
     private static HashMap<String, Integer> cardValues;
+    private static int currentBuyIn;
+    private static int smallBlind;
 
 //    {
 //        cardValues = new HashMap<>();
@@ -34,6 +36,8 @@ public class Player {
         }
         try {
             JsonObject jsonObject = request.getAsJsonObject();
+            currentBuyIn = Integer.parseInt(jsonObject.get("current_buy_in").toString());
+            smallBlind = Integer.parseInt(jsonObject.get("small_blind").toString());
             // TODO: work in this
             switch (jsonObject.getAsJsonArray("community_cards").size()) {
                 case 0: {
@@ -150,18 +154,16 @@ public class Player {
     private static Integer highPairPreflop(JsonArray holeCards, JsonObject jsonObject) {
 
         String card1 = holeCards.get(0).getAsJsonObject().get("rank").getAsString();
-        int currentBuyIn = Integer.parseInt(jsonObject.get("current_buy_in").toString());
-        int smallBlind = Integer.parseInt(jsonObject.get("small_blind").toString());
 
         switch (card1) {
             case "A":
-                return currentBuyIn + (smallBlind * 10);
+                return currentBuyIn + (smallBlind * 12);
             case "K":
-                return currentBuyIn + (smallBlind * 10);
+                return currentBuyIn + (smallBlind * 12);
             case "Q":
-                return currentBuyIn + (smallBlind * 10);
+                return currentBuyIn + (smallBlind * 12);
             case "J":
-                return currentBuyIn + (smallBlind * 10);
+                return currentBuyIn + (smallBlind * 12);
             default:
                 return 0;
         }
@@ -187,7 +189,7 @@ public class Player {
         System.out.println(cardValues.get(card1));
 
         if (cardValues.get(card1) > 10 && cardValues.get(card2) > 10) {
-            return actualTeam.get("stack").getAsInt();
+            return currentBuyIn + (smallBlind * 8);
         }
         return 0;
     }
@@ -197,7 +199,7 @@ public class Player {
         String card2 = holeCards.get(1).getAsJsonObject().get("rank").getAsString();
 
         if (cardValues.get(card1) >= 7 && cardValues.get(card2) > 10 || cardValues.get(card2) >= 7 && cardValues.get(card1) > 10) {
-            return actualTeam.get("stack").getAsInt();
+            return currentBuyIn + (smallBlind * 5);
         }
         return 0;
     }
