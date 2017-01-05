@@ -90,7 +90,7 @@ public class Player {
                 JsonArray holeCards = actualTeam.getAsJsonArray("hole_cards");
                 // if PAIR
                 if (checkPairInHand(actualTeam)) {
-                    bet = highPairPreflop(holeCards, actualTeam);
+                    bet = highPairPreflop(holeCards, jsonObject);
                     if (bet != 0) return bet;
                     bet = mediumPairPreflop(holeCards, jsonObject);
                     if (bet != 0) return bet;
@@ -131,19 +131,21 @@ public class Player {
     }
 
     // PREFLOOOP
-    private static Integer highPairPreflop(JsonArray holeCards, JsonObject actualTeam) {
+    private static Integer highPairPreflop(JsonArray holeCards, JsonObject jsonObject) {
 
         String card1 = holeCards.get(0).getAsJsonObject().get("rank").getAsString();
+        int currentBuyIn = Integer.parseInt(jsonObject.get("current_buy_in").toString());
+        int smallBlind = Integer.parseInt(jsonObject.get("small_blind").toString());
 
         switch (card1) {
             case "A":
-                return actualTeam.get("stack").getAsInt();
+                return currentBuyIn + (smallBlind * 10);
             case "K":
-                return actualTeam.get("stack").getAsInt();
+                return currentBuyIn + (smallBlind * 10);
             case "Q":
-                return actualTeam.get("stack").getAsInt();
+                return currentBuyIn + (smallBlind * 10);
             case "J":
-                return actualTeam.get("stack").getAsInt();
+                return currentBuyIn + (smallBlind * 10);
             default:
                 return 0;
         }

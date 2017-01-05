@@ -44,7 +44,7 @@ public class PlayerTest {
                 "  \"pot\":0\n" +
                 "}");
 
-        assertEquals(1000, Player.betRequest(jsonElement));
+        assertEquals(100, Player.betRequest(jsonElement));
 
     }
 
