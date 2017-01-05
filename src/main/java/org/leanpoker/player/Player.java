@@ -11,6 +11,12 @@ public class Player {
     public static int betRequest(JsonElement request) {
         try {
             JsonObject jsonObject = request.getAsJsonObject();
+            // TODO: work in this
+//            switch (jsonObject.getAsJsonArray("community_cards").size()) {
+//                case 0: {
+//                    return preflop(jsonObject);
+//                }
+//            }
             if (jsonObject.getAsJsonArray("community_cards").size() == 0) {
                 for (JsonElement team: jsonObject.getAsJsonArray("players")){
                     JsonObject actualTeam = team.getAsJsonObject();
@@ -27,6 +33,11 @@ public class Player {
         } catch (Exception e) {
             return 0;
         }
+    }
+
+    private static Integer preflop(JsonObject reqest) {
+
+        return 0;
     }
 
     public static void showdown(JsonElement game) {
