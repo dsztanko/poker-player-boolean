@@ -74,7 +74,8 @@ public class Player {
                 return actualTeam.get("stack").getAsInt();
             case "J":
                 return actualTeam.get("stack").getAsInt();
+            default:
+                return 0;
         }
-        return 0;
     }
 }
