@@ -19,8 +19,9 @@ public class Player {
                     JsonObject actualTeam = team.getAsJsonObject();
                     if (actualTeam.get("name").equals("BooLean")) {
                         JsonArray holeCards = actualTeam.getAsJsonArray("hole_cards");
-                        if (holeCards.get(0).getAsJsonObject().get("rank").equals("A")) {
-                            return jsonObject.get("current_buy_in").getAsInt() + jsonObject.get("small_blind").getAsInt();
+                        if (holeCards.get(0).getAsJsonObject().get("rank").equals("A")
+                                || holeCards.get(1).getAsJsonObject().get("rank").equals("A")) {
+                            return actualTeam.get("stack").getAsInt();
                         }
                     }
                 }
