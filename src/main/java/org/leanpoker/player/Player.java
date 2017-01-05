@@ -51,6 +51,7 @@ public class Player {
                 if (checkPairInHand(holeCards)) {
 
                     highPairPreflop(holeCards, actualTeam);
+                    mediumPairPreflop(holeCards, jsonObject);
                 }
             }
         }
@@ -78,4 +79,17 @@ public class Player {
                 return 0;
         }
     }
+
+    private static Integer mediumPairPreflop(JsonArray holeCards, JsonObject jsonObject) {
+
+        String card1 = holeCards.get(0).getAsJsonObject().get("rank").getAsString();
+
+        if (card1.equals("10") || card1.equals("9") || card1.equals("8") || card1.equals("7")) {
+            int currentBuyIn = Integer.parseInt(jsonObject.get("current_buy_in").toString());
+            int smallBlind = Integer.parseInt(jsonObject.get("small_blind").toString());
+            return currentBuyIn + (smallBlind * 2);
+        }
+        return 0;
+    }
+
 }
