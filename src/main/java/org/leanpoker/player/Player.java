@@ -5,12 +5,11 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import java.util.HashMap;
-import java.util.HashSet;
 
 public class Player {
 
     static final String VERSION = "Sky is the limit";
-//    private static HashMap<String, Integer> cardValues;
+    private static HashMap<String, Integer> cardValues;
 
 //    {
 //        cardValues = new HashMap<>();
@@ -24,6 +23,15 @@ public class Player {
 //    }
 
     public static int betRequest(JsonElement request) {
+
+        cardValues = new HashMap<>();
+        cardValues.put("A",14);
+        cardValues.put("K",13);
+        cardValues.put("Q",12);
+        cardValues.put("J",11);
+        for (int i = 2; i <= 10; i++) {
+            cardValues.put(String.valueOf(i),i);
+        }
         try {
             JsonObject jsonObject = request.getAsJsonObject();
             // TODO: work in this
@@ -49,22 +57,10 @@ public class Player {
     }
 
     private static boolean checkMiddlePair(JsonObject actualTeam, JsonObject jsonObject){
-        HashMap<String, Integer> cardValues = new HashMap<>();
-        cardValues.put("A",14);
-        cardValues.put("K",13);
-        cardValues.put("Q",12);
-        cardValues.put("J",11);
-        for (int i = 2; i <= 10; i++) {
-            cardValues.put(String.valueOf(i),i);
-        }
         if (checkPairInHand(actualTeam)){
-            System.out.println("chehck middle");
             int counter = 0;
             JsonObject holeCard = actualTeam.get("hole_cards").getAsJsonArray().get(0).getAsJsonObject();
             for (JsonElement communityCard : jsonObject.getAsJsonArray("community_cards")){
-                System.out.println("FOR");
-                System.out.println(cardValues.get("A").toString());
-                System.out.println(cardValues.get(communityCard.getAsJsonObject().get("rank").getAsString()));
                 if(cardValues.get(communityCard.getAsJsonObject().get("rank").getAsString())
                         > cardValues.get(holeCard.get("rank").getAsString())){
                     counter++;
@@ -87,23 +83,25 @@ public class Player {
     }
 
     private static Integer preflop(JsonObject jsonObject) {
+        int bet;
         for (JsonElement team : jsonObject.getAsJsonArray("players")) {
             JsonObject actualTeam = team.getAsJsonObject();
             if (actualTeam.get("name").getAsString().equals("BooLean")) {
                 JsonArray holeCards = actualTeam.getAsJsonArray("hole_cards");
                 // if PAIR
                 if (checkPairInHand(actualTeam)) {
-                    int bet = highPairPreflop(holeCards, actualTeam);
+                    bet = highPairPreflop(holeCards, actualTeam);
                     if (bet != 0) return bet;
-                    else return mediumPairPreflop(holeCards, jsonObject);
+                    bet = mediumPairPreflop(holeCards, jsonObject);
+                    if (bet != 0) return bet;
                 }
                 // is SAME COLOR but not pair
-//                if (checkSameColor(actualTeam)) {
-//                    if (oneIsHigh(actualTeam)) {
-//
-//
-//                    }
-//                }
+                if (checkSameColor(actualTeam)) {
+                    bet = highCardAndSameColorInHandPreFlop(holeCards, actualTeam);
+                    if (bet != 0) return bet;
+                }
+                bet = highCardInHandPreFlop(holeCards, actualTeam);
+                if (bet != 0) return bet;
             }
         }
         return 0;
@@ -112,11 +110,8 @@ public class Player {
     // Check same color in hands
     private static boolean checkSameColor(JsonObject actualTeam) {
         JsonArray holeCards = actualTeam.getAsJsonArray("hole_cards");
-        if (holeCards.get(0).getAsJsonObject().get("suit").getAsString()
-                .equals(holeCards.get(1).getAsJsonObject().get("suit").getAsString())) {
-            return true;
-        }
-        return false;
+        return holeCards.get(0).getAsJsonObject().get("suit").getAsString()
+                .equals(holeCards.get(1).getAsJsonObject().get("suit").getAsString());
     }
 
     private static JsonObject ownTeam(JsonObject jsonObject){
@@ -163,5 +158,27 @@ public class Player {
         }
         return 0;
     }
+
+    private static Integer highCardInHandPreFlop(JsonArray holeCards, JsonObject actualTeam){
+        String card1 = holeCards.get(0).getAsJsonObject().get("rank").getAsString();
+        String card2 = holeCards.get(1).getAsJsonObject().get("rank").getAsString();
+        System.out.println(cardValues.get(card1));
+
+        if (cardValues.get(card1) > 10 && cardValues.get(card2) > 10){
+            return actualTeam.get("stack").getAsInt();
+        }
+        return 0;
+    }
+
+    private static Integer highCardAndSameColorInHandPreFlop(JsonArray holeCards, JsonObject actualTeam){
+        String card1 = holeCards.get(0).getAsJsonObject().get("rank").getAsString();
+        String card2 = holeCards.get(1).getAsJsonObject().get("rank").getAsString();
+
+        if (cardValues.get(card1) >= 7 && cardValues.get(card2) > 10 || cardValues.get(card2) >= 7 && cardValues.get(card1) > 10){
+            return actualTeam.get("stack").getAsInt();
+        }
+        return 0;
+    }
+
 
 }
