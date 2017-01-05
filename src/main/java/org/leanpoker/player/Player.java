@@ -25,12 +25,12 @@ public class Player {
     public static int betRequest(JsonElement request) {
 
         cardValues = new HashMap<>();
-        cardValues.put("A",14);
-        cardValues.put("K",13);
-        cardValues.put("Q",12);
-        cardValues.put("J",11);
+        cardValues.put("A", 14);
+        cardValues.put("K", 13);
+        cardValues.put("Q", 12);
+        cardValues.put("J", 11);
         for (int i = 2; i <= 10; i++) {
-            cardValues.put(String.valueOf(i),i);
+            cardValues.put(String.valueOf(i), i);
         }
         try {
             JsonObject jsonObject = request.getAsJsonObject();
@@ -50,19 +50,19 @@ public class Player {
 
     private static int afterFlop(JsonObject jsonObject) {
         JsonObject actualTeam = ownTeam(jsonObject);
-        if (checkMiddlePair(actualTeam, jsonObject)){
+        if (checkMiddlePair(actualTeam, jsonObject)) {
             return actualTeam.get("stack").getAsInt();
         }
         return 0;
     }
 
-    private static boolean checkMiddlePair(JsonObject actualTeam, JsonObject jsonObject){
-        if (checkPairInHand(actualTeam)){
+    private static boolean checkMiddlePair(JsonObject actualTeam, JsonObject jsonObject) {
+        if (checkPairInHand(actualTeam)) {
             int counter = 0;
             JsonObject holeCard = actualTeam.get("hole_cards").getAsJsonArray().get(0).getAsJsonObject();
-            for (JsonElement communityCard : jsonObject.getAsJsonArray("community_cards")){
-                if(cardValues.get(communityCard.getAsJsonObject().get("rank").getAsString())
-                        > cardValues.get(holeCard.get("rank").getAsString())){
+            for (JsonElement communityCard : jsonObject.getAsJsonArray("community_cards")) {
+                if (cardValues.get(communityCard.getAsJsonObject().get("rank").getAsString())
+                        > cardValues.get(holeCard.get("rank").getAsString())) {
                     counter++;
                 }
                 if (counter > 1) {
@@ -73,7 +73,7 @@ public class Player {
         return true;
     }
 
-    private static boolean checkPairInHand(JsonObject actualTeam){
+    private static boolean checkPairInHand(JsonObject actualTeam) {
         JsonArray holeCards = actualTeam.getAsJsonArray("hole_cards");
         if (holeCards.get(0).getAsJsonObject().get("rank").getAsString()
                 .equals(holeCards.get(1).getAsJsonObject().get("rank").getAsString())) {
@@ -92,7 +92,7 @@ public class Player {
                 if (checkPairInHand(actualTeam)) {
                     bet = highPairPreflop(holeCards, actualTeam);
                     if (bet != 0) return bet;
-                    bet = mediumPairPreflop(holeCards, jsonObject);
+                    bet = mediumPairPreflop(holeCards, actualTeam);
                     if (bet != 0) return bet;
                 }
                 // is SAME COLOR but not pair
@@ -101,6 +101,8 @@ public class Player {
                     if (bet != 0) return bet;
                 }
                 bet = highCardInHandPreFlop(holeCards, actualTeam);
+                if (bet != 0) return bet;
+                bet = oneHighOneMiddleInHandPreFlop(holeCards, actualTeam);
                 if (bet != 0) return bet;
             }
         }
@@ -114,8 +116,8 @@ public class Player {
                 .equals(holeCards.get(1).getAsJsonObject().get("suit").getAsString());
     }
 
-    private static JsonObject ownTeam(JsonObject jsonObject){
-        for (JsonElement team: jsonObject.getAsJsonArray("players")){
+    private static JsonObject ownTeam(JsonObject jsonObject) {
+        for (JsonElement team : jsonObject.getAsJsonArray("players")) {
             JsonObject actualTeam = team.getAsJsonObject();
             if (actualTeam.get("name").getAsString().equals("BooLean")) {
                 return actualTeam;
@@ -147,19 +149,15 @@ public class Player {
         }
     }
 
-    private static Integer mediumPairPreflop(JsonArray holeCards, JsonObject jsonObject) {
+    private static Integer mediumPairPreflop(JsonArray holeCards, JsonObject actualTeam) {
 
         String card1 = holeCards.get(0).getAsJsonObject().get("rank").getAsString();
 
         if (card1.equals("10") || card1.equals("9") || card1.equals("8")) {
-            int currentBuyIn = Integer.parseInt(jsonObject.get("current_buy_in").toString());
-            int smallBlind = Integer.parseInt(jsonObject.get("small_blind").toString());
-            return currentBuyIn + (smallBlind * 10);
+            return actualTeam.get("stack").getAsInt()/6;
         }
         if ((card1.equals("7") || card1.equals("6") || card1.equals("5"))) {
-            int currentBuyIn = Integer.parseInt(jsonObject.get("current_buy_in").toString());
-            int smallBlind = Integer.parseInt(jsonObject.get("small_blind").toString());
-            return currentBuyIn + (smallBlind * 6);
+            return actualTeam.get("stack").getAsInt()/12;
         }
         return 0;
     }
@@ -170,21 +168,29 @@ public class Player {
         String card2 = holeCards.get(1).getAsJsonObject().get("rank").getAsString();
         System.out.println(cardValues.get(card1));
 
-        if (cardValues.get(card1) > 10 && cardValues.get(card2) > 10){
+        if (cardValues.get(card1) > 10 && cardValues.get(card2) > 10) {
             return actualTeam.get("stack").getAsInt();
         }
         return 0;
     }
 
-    private static Integer highCardAndSameColorInHandPreFlop(JsonArray holeCards, JsonObject actualTeam){
+    private static Integer highCardAndSameColorInHandPreFlop(JsonArray holeCards, JsonObject actualTeam) {
         String card1 = holeCards.get(0).getAsJsonObject().get("rank").getAsString();
         String card2 = holeCards.get(1).getAsJsonObject().get("rank").getAsString();
 
-        if (cardValues.get(card1) >= 7 && cardValues.get(card2) > 10 || cardValues.get(card2) >= 7 && cardValues.get(card1) > 10){
+        if (cardValues.get(card1) >= 7 && cardValues.get(card2) > 10 || cardValues.get(card2) >= 7 && cardValues.get(card1) > 10) {
             return actualTeam.get("stack").getAsInt();
         }
         return 0;
     }
 
+    private static Integer oneHighOneMiddleInHandPreFlop(JsonArray holeCards, JsonObject actualTeam) {
+        String card1 = holeCards.get(0).getAsJsonObject().get("rank").getAsString();
+        String card2 = holeCards.get(1).getAsJsonObject().get("rank").getAsString();
 
+        if ((cardValues.get(card1) >= 13 && (cardValues.get(card2) >= 8 && cardValues.get(card2) <= 10)) || (cardValues.get(card2) >= 13 && (cardValues.get(card1) >= 8 && cardValues.get(card1) <= 10))) {
+            return actualTeam.get("stack").getAsInt()/10;
+        }
+        return 0;
+    }
 }
