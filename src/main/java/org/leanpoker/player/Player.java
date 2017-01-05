@@ -26,7 +26,7 @@ public class Player {
 //                        }
                         // have a pair -> allin
                         if (holeCards.get(0).getAsJsonObject().get("rank").equals(holeCards.get(1).getAsJsonObject().get("rank"))) {
-                            return jsonObject.get("current_buy_in").getAsInt() + jsonObject.get("small_blind").getAsInt();
+                            return jsonObject.get("stack").getAsInt();
                         }
                         // one A -> raise with sb
                         if (holeCards.get(0).getAsJsonObject().get("rank").equals("A")
