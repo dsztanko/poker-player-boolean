@@ -199,7 +199,9 @@ public class Player {
         String card2 = holeCards.get(1).getAsJsonObject().get("rank").getAsString();
 
         if (cardValues.get(card1) >= 7 && cardValues.get(card2) > 10 || cardValues.get(card2) >= 7 && cardValues.get(card1) > 10) {
-            return currentBuyIn + (smallBlind * 5);
+            if (currentBuyIn + (smallBlind * 5) < actualTeam.get("stack").getAsInt() / 6) {
+                return currentBuyIn + (smallBlind * 5);
+            }
         }
         return 0;
     }
