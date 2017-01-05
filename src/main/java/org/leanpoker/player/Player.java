@@ -5,10 +5,11 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import java.util.HashMap;
+import java.util.HashSet;
 
 public class Player {
 
-    static final String VERSION = "Default Java folding player";
+    static final String VERSION = "Sky is the limit";
 //    private static HashMap<String, Integer> cardValues;
 
 //    {
@@ -90,14 +91,32 @@ public class Player {
             JsonObject actualTeam = team.getAsJsonObject();
             if (actualTeam.get("name").getAsString().equals("BooLean")) {
                 JsonArray holeCards = actualTeam.getAsJsonArray("hole_cards");
+                // if PAIR
                 if (checkPairInHand(actualTeam)) {
                     int bet = highPairPreflop(holeCards, actualTeam);
                     if (bet != 0) return bet;
                     else return mediumPairPreflop(holeCards, jsonObject);
                 }
+                // is SAME COLOR but not pair
+//                if (checkSameColor(actualTeam)) {
+//                    if (oneIsHigh(actualTeam)) {
+//
+//
+//                    }
+//                }
             }
         }
         return 0;
+    }
+
+    // Check same color in hands
+    private static boolean checkSameColor(JsonObject actualTeam) {
+        JsonArray holeCards = actualTeam.getAsJsonArray("hole_cards");
+        if (holeCards.get(0).getAsJsonObject().get("suit").getAsString()
+                .equals(holeCards.get(1).getAsJsonObject().get("suit").getAsString())) {
+            return true;
+        }
+        return false;
     }
 
     private static JsonObject ownTeam(JsonObject jsonObject){
