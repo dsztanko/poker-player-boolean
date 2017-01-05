@@ -48,10 +48,26 @@ public class Player {
         }
     }
 
+    // AFTER FLOP
     private static int afterFlop(JsonObject jsonObject) {
         JsonObject actualTeam = ownTeam(jsonObject);
         if (checkMiddlePair(actualTeam, jsonObject)) {
             return actualTeam.get("stack").getAsInt();
+        }
+        if (checkPairInHand(actualTeam)) {
+            return drillAfterFlop(jsonObject, actualTeam);
+        }
+        return 0;
+    }
+
+    // check drill
+    private static int drillAfterFlop(JsonObject jsonObject, JsonObject actualTeam) {
+        JsonObject holeCard = actualTeam.get("hole_cards").getAsJsonArray().get(0).getAsJsonObject();
+        for (JsonElement communityCard : jsonObject.getAsJsonArray("community_cards")) {
+            if (cardValues.get(communityCard.getAsJsonObject().get("rank").getAsString())
+                    == cardValues.get(holeCard.get("rank").getAsString())) {
+                return actualTeam.get("stack").getAsInt();
+            }
         }
         return 0;
     }
