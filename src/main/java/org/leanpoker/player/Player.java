@@ -151,13 +151,19 @@ public class Player {
 
         String card1 = holeCards.get(0).getAsJsonObject().get("rank").getAsString();
 
-        if (card1.equals("10") || card1.equals("9") || card1.equals("8") || card1.equals("7")) {
+        if (card1.equals("10") || card1.equals("9") || card1.equals("8")) {
+            int currentBuyIn = Integer.parseInt(jsonObject.get("current_buy_in").toString());
+            int smallBlind = Integer.parseInt(jsonObject.get("small_blind").toString());
+            return currentBuyIn + (smallBlind * 10);
+        }
+        if ((card1.equals("7") || card1.equals("6") || card1.equals("5"))) {
             int currentBuyIn = Integer.parseInt(jsonObject.get("current_buy_in").toString());
             int smallBlind = Integer.parseInt(jsonObject.get("small_blind").toString());
             return currentBuyIn + (smallBlind * 6);
         }
         return 0;
     }
+
 
     private static Integer highCardInHandPreFlop(JsonArray holeCards, JsonObject actualTeam){
         String card1 = holeCards.get(0).getAsJsonObject().get("rank").getAsString();
