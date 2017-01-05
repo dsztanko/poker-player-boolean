@@ -242,7 +242,6 @@ public class PlayerTest {
     }
 
         @Test
-
             public void testOneHighOneMiddleInHand() throws Exception {
                 JsonElement jsonElement = new JsonParser().parse("{\n" +
                         "  \"players\":[\n" +
