@@ -86,11 +86,14 @@ public class Player {
     }
 
     private static Integer preflop(JsonObject jsonObject) {
-        for (JsonElement team: jsonObject.getAsJsonArray("players")){
+        for (JsonElement team : jsonObject.getAsJsonArray("players")) {
             JsonObject actualTeam = team.getAsJsonObject();
             if (actualTeam.get("name").getAsString().equals("BooLean")) {
+                JsonArray holeCards = actualTeam.getAsJsonArray("hole_cards");
                 if (checkPairInHand(actualTeam)) {
-                    return actualTeam.get("stack").getAsInt();
+                    int bet = highPairPreflop(holeCards, actualTeam);
+                    if (bet != 0) return bet;
+                    else return mediumPairPreflop(holeCards, jsonObject);
                 }
             }
         }
@@ -108,5 +111,37 @@ public class Player {
     }
 
     public static void showdown(JsonElement game) {
+
     }
+
+    private static Integer highPairPreflop(JsonArray holeCards, JsonObject actualTeam) {
+
+        String card1 = holeCards.get(0).getAsJsonObject().get("rank").getAsString();
+
+        switch (card1) {
+            case "A":
+                return actualTeam.get("stack").getAsInt();
+            case "K":
+                return actualTeam.get("stack").getAsInt();
+            case "Q":
+                return actualTeam.get("stack").getAsInt();
+            case "J":
+                return actualTeam.get("stack").getAsInt();
+            default:
+                return 0;
+        }
+    }
+
+    private static Integer mediumPairPreflop(JsonArray holeCards, JsonObject jsonObject) {
+
+        String card1 = holeCards.get(0).getAsJsonObject().get("rank").getAsString();
+
+        if (card1.equals("10") || card1.equals("9") || card1.equals("8") || card1.equals("7")) {
+            int currentBuyIn = Integer.parseInt(jsonObject.get("current_buy_in").toString());
+            int smallBlind = Integer.parseInt(jsonObject.get("small_blind").toString());
+            return currentBuyIn + (smallBlind * 2);
+        }
+        return 0;
+    }
+
 }
